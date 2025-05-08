@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.views.generic import TemplateView
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, permissions, viewsets
+from rest_framework.decorators import api_view
 
 from .models import Rating, Trip, Vehicle
 from .serializers import (
@@ -36,12 +37,16 @@ class TripViewSet(viewsets.ReadOnlyModelViewSet):
 
     Soporta filtro por driver con ?driver=<id>.
     """
-    queryset = Trip.objects.all()
     serializer_class = TripSerializer
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['driver']
 
+    def get_queryset(self):
+        queryset = Trip.objects.all()
+        driver = self.request.query_params.get('driver')
+
+        return driver
 
 class DriverViewSet(viewsets.ReadOnlyModelViewSet):
     """
