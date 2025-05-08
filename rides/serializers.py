@@ -67,3 +67,25 @@ class TripSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         # Passthrough to viewset logic; trip.request view will assign driver
         return super().create(validated_data)
+
+    class UserSerializer(serializers.ModelSerializer):
+        trip_count = serializers.SerializerMethodField(read_only=True)
+
+        class Meta:
+            model = User
+            fields = [
+            'id',
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'is_driver',
+            'is_passenger',
+            'is_available',
+            'trip_count',
+        ]
+
+    def get_trip_count(self, obj):
+        if obj.is_driver:
+            return obj.trips_as_driver.filter(status='COMPLETED').count()
+        return None
