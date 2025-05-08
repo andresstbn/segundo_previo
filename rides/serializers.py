@@ -6,6 +6,8 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
+    trip_count = serializers.SerializerMethodField() # Campo personalizado para contar viajes
+
     class Meta:
         model = User
         fields = [
@@ -17,8 +19,13 @@ class UserSerializer(serializers.ModelSerializer):
             'is_driver',
             'is_passenger',
             'is_available',
+            'trip_count',  # Incluye el campo trip_count en la serialización
         ]
-
+    
+    # Metodo que cuenta los viajes con status "COMPLETED" por el conductor
+    def get_trip_count(self, obj):
+        trips = Trip.objects.filter(driver=obj, status='COMPLETED')
+        return trips.count()
 
 class VehicleSerializer(serializers.ModelSerializer):
     driver = UserSerializer(read_only=True)

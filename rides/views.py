@@ -42,7 +42,14 @@ class TripViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['driver']
 
-
+    # Metodo para filtrar Usuarios con is_driver=True e is_available=True
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        driver_id = self.request.query_params.get('driver')
+        if driver_id:
+            queryset = queryset.filter(driver__id=driver_id, driver__is_available=True)
+        return queryset
+    
 class DriverViewSet(viewsets.ReadOnlyModelViewSet):
     """
     ViewSet para ver conductores.
