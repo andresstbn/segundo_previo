@@ -6,6 +6,7 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
+    trip_count = serializers.SerializerMethodField()
     class Meta:
         model = User
         fields = [
@@ -18,6 +19,8 @@ class UserSerializer(serializers.ModelSerializer):
             'is_passenger',
             'is_available',
         ]
+    def get_trip_count(self, obj):
+        return obj.trips_as_driver.filter(status='COMPLETED').count()
 
 
 class VehicleSerializer(serializers.ModelSerializer):
