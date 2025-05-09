@@ -17,6 +17,7 @@ class UserSerializer(serializers.ModelSerializer):
             'is_driver',
             'is_passenger',
             'is_available',
+            
         ]
 
 
@@ -50,6 +51,7 @@ class TripSerializer(serializers.ModelSerializer):
     passenger = UserSerializer(read_only=True)
     driver = UserSerializer(read_only=True)
     rating = RatingSerializer(read_only=True)
+    fare = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Trip
@@ -62,8 +64,28 @@ class TripSerializer(serializers.ModelSerializer):
             'end_time',
             'status',
             'rating',
+            'fare',
         ]
 
     def create(self, validated_data):
         # Passthrough to viewset logic; trip.request view will assign driver
         return super().create(validated_data)
+    
+    def get_fare(self, obj):
+        if obj.driver:
+            active_trips = obj.driver.trips_as_driver.filter(
+                status__in=[Trip.STATUS_PENDING, Trip.STATUS_ONGOING]).count()
+            base_fare = 1000
+            surge_multiplier = 1+(active_trips/10)
+            return int(base_fare * surge_multiplier)
+        return None
+    
+    # def get_fare(self, obj):
+    #     if obj.driver:
+    #         active_trips = obj.driver.trips_as_driver.filter(
+    #             status__in=[Trip.STATUS_PENDING, Trip.STATUS_ONGOING]
+    #         ).count()
+    #         base_fare = 1000
+    #         surge_multiplier = 1 + (active_trips / 10)
+    #         return int(base_fare * surge_multiplier)
+    #     return None
