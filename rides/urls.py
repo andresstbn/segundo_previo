@@ -6,6 +6,7 @@ from .views import (
     TripViewSet,
     DriverViewSet,
     RatingViewSet,
+    PassengerViewSet,
     HomeView
 )
 
@@ -13,6 +14,7 @@ router = DefaultRouter()
 router.register(r'vehicles', VehicleViewSet, basename='vehicle')
 router.register(r'trips', TripViewSet, basename='trip')
 router.register(r'drivers', DriverViewSet, basename='driver')
+router.register(r'passengers', PassengerViewSet, basename='passenger')
 router.register(r'ratings', RatingViewSet, basename='rating')
 
 urlpatterns = [
