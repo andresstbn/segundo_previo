@@ -93,7 +93,7 @@ class TripViewSet(viewsets.ReadOnlyModelViewSet):
 
 
     
-class TripSerializer(serializers.ModelSerializer):
+'''class TripSerializer(serializers.ModelSerializer):
     """
     Serializador para los viajes.
     """
@@ -123,7 +123,7 @@ class TripSerializer(serializers.ModelSerializer):
         base_fare = 1000
         fare = int(base_fare * surge_multiplier)
 
-        return fare
+        return fare'''
 
 
 class DriverViewSet(viewsets.ReadOnlyModelViewSet):
