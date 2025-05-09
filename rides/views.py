@@ -16,7 +16,7 @@ from .serializers import (
 from rest_framework import permissions, viewsets
 from .models import Trip
 from .serializers import TripSerializer
-from rest_framework import serializers
+from rest_framework import serializers, status
 from .models import Trip
 from .models import Rating
 from django.db import models
@@ -135,7 +135,7 @@ class DriverViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated] 
 
     @action(detail=False, methods=['get'], url_path='trending')
-    def trending_drivers(self, request):
+    def trending(self, request):
         """
         Endpoint que devuelve los 5 conductores con el mayor average_score,
         calculado como el promedio de los puntajes de rating.
@@ -143,13 +143,19 @@ class DriverViewSet(viewsets.ReadOnlyModelViewSet):
         # Calcular el average_score por conductor, ordenar por él y limitar a los 5 primeros
         trending_drivers = (
             User.objects.filter(is_driver=True)
-            .annotate(average_score=Avg('ratings__score'))  # Asume que Rating tiene un campo 'score'
-            .order_by('-average_score')  # Ordenar de mayor a menor
-            .values('id', 'username', 'average_score')[:5]  # Limitar a los 5 primeros
+            .annotate(average_score=Avg('trips_as_driver__rating__score'))  # Asume que Rating tiene un campo 'score'
+            .order_by('-average_score') [:5]  # Limitar a los 5 primeros
         )
-
+        data = [
+            {
+                "id": driver.id,
+                "name": driver.get_full_name(),
+                "average_score": driver.average_score,
+            }
+            for driver in trending_drivers
+        ]
         # Devuelve los resultados
-        return Response(trending_drivers)
+        return Response(data, status=status.HTTP_200_OK)
 
 class RatingViewSet(
     mixins.ListModelMixin,
