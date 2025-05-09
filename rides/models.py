@@ -42,6 +42,8 @@ class Vehicle(models.Model):
     license_plate = models.CharField(max_length=20, unique=True)
     model = models.CharField(max_length=100)
     capacity = models.PositiveIntegerField(default=4)
+    is_available = models.BooleanField(default=True)
+
 
     def __str__(self):
         return f'{self.model} ({self.license_plate})'
