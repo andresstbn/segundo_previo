@@ -124,3 +124,18 @@ class Rating(models.Model):
         verbose_name = "Valoración"
         verbose_name_plural = "Valoraciones"
         ordering = ['-created_at']
+
+# En rides/models.py:
+from django.db import models
+
+class Rating(models.Model):
+    score = models.IntegerField()
+    driver = models.ForeignKey('Driver', on_delete=models.CASCADE)
+    passenger = models.ForeignKey('Passenger', on_delete=models.CASCADE)
+    # Aquí pueden ir más campos relacionados con la calificación.
+
+class Rating(models.Model):
+    driver = models.ForeignKey(User, related_name='ratings', on_delete=models.CASCADE)
+    score = models.IntegerField()
+    # Otros campos...
+    
