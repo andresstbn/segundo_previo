@@ -63,6 +63,22 @@ class TripSerializer(serializers.ModelSerializer):
             'status',
             'rating',
         ]
+        
+    def get_fare(self, obj):
+       
+        base_fare = 1000
+        if obj.driver:
+            
+            active_trips_of_driver = Trip.objects.filter(
+                driver=obj.driver,
+                status__in=[Trip.STATUS_PENDING, Trip.STATUS_ONGOING]
+            ).count()
+            surge_multiplier = 1 + (active_trips_of_driver / 10)
+        else:
+            surge_multiplier = 1 
+
+        fare = int(base_fare * surge_multiplier)
+        return fare
 
     def create(self, validated_data):
         # Passthrough to viewset logic; trip.request view will assign driver
