@@ -2,6 +2,9 @@ from django.contrib.auth import get_user_model
 from django.views.generic import TemplateView
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, permissions, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from django.db.models import Count
 
 from .models import Rating, Trip, Vehicle
 from .serializers import (
@@ -27,7 +30,21 @@ class VehicleViewSet(viewsets.ModelViewSet):
     """
     queryset = Vehicle.objects.all()
     serializer_class = VehicleSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    
+    @action(detail=False, methods=['get'], url_path='models-summary')
+    def models_summary(self, request):
+        
+        summary = Vehicle.objects.values('model').annotate(count=Count('model'))
+        return Response(summary)
+    
+    @action(detail=True, methods=['post'], url_path='toggle-availability')
+    def toggle_availability(self, request, pk=None):
+        
+        vehicle = Vehicle.objects.get(pk=pk)
+        vehicle.driver.is_available = not vehicle.driver.is_available
+        vehicle.driver.save()
+        vehicle.save()
+        return Response({"is_available": vehicle.driver.is_available})
 
 
 class TripViewSet(viewsets.ReadOnlyModelViewSet):
